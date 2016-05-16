@@ -1,8 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-int main(void) {
-    char* user = "ab";
-    char shell[100];
-    sprintf(shell,"%s",user);
-    printf(shell);
+#include "stdio.h"
+#include "string.h"
+int
+main(void) {
+	char dirname[20] = "./";
+	char args[10] = ".git";
+	strcat(dirname, args);
+	printf("%s", dirname);
 }
