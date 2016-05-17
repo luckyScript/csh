@@ -5,7 +5,8 @@
 #include <stdlib.h>
 
 
-void getFileName();
+void ls(char args[10]);
+void echo(char **args, int argscount);
 char* getcwdname();
 
 int main(int argc,char **argv) {
@@ -41,17 +42,22 @@ int main(int argc,char **argv) {
         }
 
         if(strcmp(command, "ls") == 0) {
+            printf("hello world");
             if(argscount == 0) {
-                getFileName("ls");
+                ls("ls");
             } else if(argscount == 1 && (strcmp(arguments[0], "-l") == 0)) {
-                getFileName("ll");
+                ls("ll");
             }else {
-                getFileName(arguments[0]);
+                ls(arguments[0]);
             }
+        } else if(strcmp(command, "echo") == 0) {
+            echo(arguments, argscount);
+        } else {
+            printf("command not found!")
         }
-        for(int i = 0; i < argscount; i++) {
+        /*for(int i = 0; i < argscount; i++) {
             printf("%s", arguments[i]);
-        }
+        }*/
         for(int i = 0; i < argscount; i++) {
             free(arguments[i]);
         }
@@ -63,11 +69,11 @@ int main(int argc,char **argv) {
     return 0;
 }
 
-void getFileName(char args[10]) {
+void ls(char args[10]) {
     DIR *dp;
     struct dirent *dirp;
     char dirname[20] = "./";
-    if(strcmp(args,"ls") == 0 && strcmp(args,"ll") == 0) {
+    if(strcmp(args,"ls") == 0 || strcmp(args,"ll") == 0) {
         dp = opendir(dirname);
         while((dirp = readdir(dp)) != NULL) {
             if(strcmp(args,"ls") == 0) {
@@ -90,6 +96,13 @@ void getFileName(char args[10]) {
     
     printf("\n");
     closedir(dp);
+}
+
+void echo(char **args, int argscount) {
+    for(int i = 0; i < argscount; i++) {
+        printf("%s ", args[i]);
+    }
+    printf("\n");
 }
 
 char* getcwdname() {
