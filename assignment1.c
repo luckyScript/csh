@@ -9,13 +9,19 @@ void ls(char dirname[100], char args[10]);
 void echo(char **args, int argscount);
 
 int main(int argc,char **argv) {
-    char* user = "kay";
+    // get current username
+    char* user = getenv("LOGNAME");
+    
+    // get current work dir
     char buf[100];
     char* cwd = strcat(getcwd(buf, sizeof(buf)),"/");
+    
+    // print shell prompt
     char shell[100];
     sprintf(shell,"[%s]@myshell:%s>",user,cwd);
     printf("%s",shell);
     
+    //parser start
     while(1) {
         char *line = malloc(128);
         char *originLine = line;
@@ -25,9 +31,11 @@ int main(int argc,char **argv) {
         char **arguments = malloc(sizeof(char *));
         unsigned int argscount = 0;
         line = strchr(line, ' ');
+        
         if (strcmp(command, "exit") == 0) {
             break;
         }
+        
         while(1) {
             char args[20];
             if(line &&(sscanf(++line, "%20s", args) == 1)) {
@@ -40,9 +48,9 @@ int main(int argc,char **argv) {
                 break;
             }
         }
-
+        //parser end
+        
         if(strcmp(command, "ls") == 0) {
-            printf("hello world");
             if(argscount == 0) {
                 ls(cwd, "ls");
             } else if(argscount == 1 && (strcmp(arguments[0], "-l") == 0)) {
@@ -50,26 +58,37 @@ int main(int argc,char **argv) {
             }else {
                 ls(cwd, arguments[0]);
             }
+        
         } else if(strcmp(command, "echo") == 0) {
-            echo(arguments, argscount);
+            if(argscount == 1 && strcmp(arguments[0], "$HOME") == 0) {
+                printf("%s\n", getenv("HOME"));
+            }else {
+                echo(arguments, argscount);
+            }
+        
         } else if(strcmp(command, "cd") == 0) {
             if(argscount == 2) {
                 printf("warning: too many arguments\n");
             } else if(argscount == 0 || (strcmp(arguments[0], ".") == 0)) {
                 // do nothing
-            } else if(strcmp(arguments[0], "..")){}
+            } else {
+                int rs = chdir(arguments[0]);
+                cwd = strcat(getcwd(buf, sizeof(buf)),"/");
+                sprintf(shell,"[%s]@myshell:%s>",user,cwd);
+            }
+        
         } else {
             printf("command not found!");
         }
-        /*for(int i = 0; i < argscount; i++) {
-            printf("%s", arguments[i]);
-        }*/
+        
+        // free
         for(int i = 0; i < argscount; i++) {
             free(arguments[i]);
         }
         free(arguments);
         free(originLine);
         printf("%s",shell);
+    
     }
     printf("exit!");
     return 0;
