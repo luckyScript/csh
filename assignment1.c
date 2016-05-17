@@ -5,13 +5,13 @@
 #include <stdlib.h>
 
 
-void ls(char args[10]);
+void ls(char dirname[100], char args[10]);
 void echo(char **args, int argscount);
-char* getcwdname();
 
 int main(int argc,char **argv) {
     char* user = "kay";
-    char* cwd = getcwdname();
+    char buf[100];
+    char* cwd = strcat(getcwd(buf, sizeof(buf)),"/");
     char shell[100];
     sprintf(shell,"[%s]@myshell:%s>",user,cwd);
     printf("%s",shell);
@@ -44,16 +44,22 @@ int main(int argc,char **argv) {
         if(strcmp(command, "ls") == 0) {
             printf("hello world");
             if(argscount == 0) {
-                ls("ls");
+                ls(cwd, "ls");
             } else if(argscount == 1 && (strcmp(arguments[0], "-l") == 0)) {
-                ls("ll");
+                ls(cwd, "ll");
             }else {
-                ls(arguments[0]);
+                ls(cwd, arguments[0]);
             }
         } else if(strcmp(command, "echo") == 0) {
             echo(arguments, argscount);
+        } else if(strcmp(command, "cd") == 0) {
+            if(argscount == 2) {
+                printf("warning: too many arguments\n");
+            } else if(argscount == 0 || (strcmp(arguments[0], ".") == 0)) {
+                // do nothing
+            } else if(strcmp(arguments[0], "..")){}
         } else {
-            printf("command not found!")
+            printf("command not found!");
         }
         /*for(int i = 0; i < argscount; i++) {
             printf("%s", arguments[i]);
@@ -69,10 +75,10 @@ int main(int argc,char **argv) {
     return 0;
 }
 
-void ls(char args[10]) {
+void ls(char dirname[100], char args[10]) {
     DIR *dp;
     struct dirent *dirp;
-    char dirname[20] = "./";
+    // char dirname[20] = "./";
     if(strcmp(args,"ls") == 0 || strcmp(args,"ll") == 0) {
         dp = opendir(dirname);
         while((dirp = readdir(dp)) != NULL) {
@@ -103,10 +109,4 @@ void echo(char **args, int argscount) {
         printf("%s ", args[i]);
     }
     printf("\n");
-}
-
-char* getcwdname() {
-    char buf[100];
-    getcwd(buf, sizeof(buf));
-    return buf;
 }
